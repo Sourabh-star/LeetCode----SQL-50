@@ -1,0 +1,28 @@
+SELECT 
+    salary_categories.category,
+    COALESCE(COUNT(categorized_accounts.account_id), 0) AS accounts_count
+FROM (
+    SELECT 
+        account_id,
+        CASE 
+            WHEN income < 20000 THEN 'Low Salary'
+            WHEN income BETWEEN 20000 AND 50000 THEN 'Average Salary'
+            ELSE 'High Salary'
+        END AS category
+    FROM Accounts
+) AS categorized_accounts
+RIGHT JOIN (
+    SELECT 'Low Salary' AS category
+    UNION ALL
+    SELECT 'Average Salary' AS category
+    UNION ALL
+    SELECT 'High Salary' AS category
+) AS salary_categories
+ON categorized_accounts.category = salary_categories.category
+GROUP BY salary_categories.category
+ORDER BY 
+    CASE 
+        WHEN salary_categories.category = 'Low Salary' THEN 1
+        WHEN salary_categories.category = 'Average Salary' THEN 2
+        ELSE 3
+    END;
