@@ -1,0 +1,19 @@
+SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM Insurance AS i1
+JOIN (
+    SELECT tiv_2015
+    FROM Insurance
+    GROUP BY tiv_2015
+    HAVING COUNT(*) > 1
+) AS multiple_policyholders
+ON i1.tiv_2015 = multiple_policyholders.tiv_2015
+LEFT JOIN (
+    SELECT lat, lon
+    FROM Insurance
+    GROUP BY lat, lon
+    HAVING COUNT(*) = 1
+) AS unique_locations
+ON i1.lat = unique_locations.lat
+   AND i1.lon = unique_locations.lon
+WHERE unique_locations.lat IS NOT NULL
+   AND unique_locations.lon IS NOT NULL;
